@@ -7,8 +7,8 @@ import android.content.Loader;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -36,8 +36,7 @@ public class ArticlesActivity extends AppCompatActivity implements LoaderManager
         mLoadingSpinner = findViewById(R.id.loading_spinner);
 
         if (!isConnectedToInternet()){
-            mLoadingSpinner.setVisibility(View.GONE);
-            mEmptyTextView.setText(R.string.no_internet);
+            displayNoInternetMsg();
         }
         else {
             mAdapter = new ArticleAdapter(this, new ArrayList<Article>());
@@ -48,9 +47,9 @@ public class ArticlesActivity extends AppCompatActivity implements LoaderManager
             articleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                    Article currentEarthquake = mAdapter.getItem(position);
-                    Uri earthquakeUri = Uri.parse(currentEarthquake.getUrl());
-                    Intent websiteIntent = new Intent(Intent.ACTION_VIEW, earthquakeUri);
+                    Article currentArticle = mAdapter.getItem(position);
+                    Uri articleUri = Uri.parse(currentArticle.getUrl());
+                    Intent websiteIntent = new Intent(Intent.ACTION_VIEW, articleUri);
                     startActivity(websiteIntent);
                 }
             });
@@ -58,6 +57,11 @@ public class ArticlesActivity extends AppCompatActivity implements LoaderManager
             LoaderManager loaderManager = getLoaderManager();
             loaderManager.initLoader(ARTICLE_LOADER_ID, null, this);
         }
+    }
+
+    private void displayNoInternetMsg() {
+        mLoadingSpinner.setVisibility(View.GONE);
+        mEmptyTextView.setText(R.string.no_internet);
     }
 
     private boolean isConnectedToInternet() {
@@ -73,14 +77,19 @@ public class ArticlesActivity extends AppCompatActivity implements LoaderManager
 
     @Override
     public void onLoadFinished(Loader<List<Article>> loader, List<Article> articles) {
-        mLoadingSpinner.setVisibility(View.GONE);
-        mAdapter.clear();
-
-        if (articles != null && !articles.isEmpty()) {
-            mAdapter.addAll(articles);
+        if (!isConnectedToInternet()){
+            displayNoInternetMsg();
         }
+        else{
+            mLoadingSpinner.setVisibility(View.GONE);
+            mAdapter.clear();
 
-        mEmptyTextView.setText(R.string.no_articles_found);
+            if (articles != null && !articles.isEmpty()) {
+                mAdapter.addAll(articles);
+            }
+
+            mEmptyTextView.setText(R.string.no_articles_found);
+        }
     }
 
     @Override

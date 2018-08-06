@@ -2,7 +2,6 @@ package com.example.android.newsapp;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
-import android.content.Loader;
 import android.text.TextUtils;
 
 import java.util.List;

@@ -51,10 +51,11 @@ public class QueryUtils {
                 JSONArray jsonTagsArray = jsonResultObject.optJSONArray("tags");
                 String author = "";
                 if(jsonTagsArray != null) {
-                    JSONObject jsonFirstTagObject = jsonTagsArray.getJSONObject(0);
-                    author = jsonFirstTagObject.optString("webTitle");
+                    JSONObject jsonFirstTagObject = jsonTagsArray.optJSONObject(0);
+                    if (jsonFirstTagObject != null) {
+                        author = jsonFirstTagObject.optString("webTitle");
+                    }
                 }
-
                 articles.add(new Article(title, sectionName, author, url, date));
             }
 
@@ -75,9 +76,9 @@ public class QueryUtils {
             Log.e(LOG_TAG, "Error closing input stream", e);
         }
 
-        List<Article> earthquakes = QueryUtils.extractArticles(jsonResponse);
+        List<Article> articles = QueryUtils.extractArticles(jsonResponse);
 
-        return earthquakes;
+        return articles;
     }
 
     private static String makeHttpRequest(URL url) throws IOException {
