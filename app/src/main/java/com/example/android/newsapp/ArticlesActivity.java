@@ -1,46 +1,90 @@
 package com.example.android.newsapp;
 
+import android.app.LoaderManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArticlesActivity extends AppCompatActivity {
+public class ArticlesActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Article>> {
 
+    private static final String GUARDIAN_URL = "https://content.guardianapis.com/search?order-by=newest&show-tags=contributor&q=politic&api-key=b0413046-5b29-4af0-ae89-3682f833a48d";
+    private static final int ARTICLE_LOADER_ID = 0;
     private ArticleAdapter mAdapter;
+    private ProgressBar mLoadingSpinner;
+    private TextView mEmptyTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.articles_activity);
 
-        String jsonResponse = "{\"response\":{\"status\":\"ok\",\"userTier\":\"developer\",\"total\":12802,\"startIndex\":1,\"pageSize\":10,\"currentPage\":1,\"pages\":1281,\"orderBy\":\"newest\",\"results\":[{\"id\":\"world/2018/aug/06/race-politics-is-back-race-commissioner-exits-with-parting-shots-at-conservatives\",\"type\":\"article\",\"sectionId\":\"world\",\"sectionName\":\"World news\",\"webPublicationDate\":\"2018-08-05T18:00:16Z\",\"webTitle\":\"‘Race politics is back’: race commissioner exits with parting shots at conservatives\",\"webUrl\":\"https://www.theguardian.com/world/2018/aug/06/race-politics-is-back-race-commissioner-exits-with-parting-shots-at-conservatives\",\"apiUrl\":\"https://content.guardianapis.com/world/2018/aug/06/race-politics-is-back-race-commissioner-exits-with-parting-shots-at-conservatives\",\"tags\":[{\"id\":\"profile/paul-karp\",\"type\":\"contributor\",\"webTitle\":\"Paul Karp\",\"webUrl\":\"https://www.theguardian.com/profile/paul-karp\",\"apiUrl\":\"https://content.guardianapis.com/profile/paul-karp\",\"references\":[],\"bio\":\"<p>Paul Karp is a reporter for Guardian Australia. He was previously a journalist at Thomson Reuters covering industrial relations for the Workforce news service and has written for Justinian, the Gazette of Law and Journalism and ABC's The Drum.</p>\",\"bylineImageUrl\":\"https://static.guim.co.uk/sys-images/Guardian/Pix/contributor/2016/2/11/1455181696016/Paul-Karp.jpg\",\"bylineLargeImageUrl\":\"https://uploads.guim.co.uk/2017/10/09/Paul-Karp,-L.png\",\"firstName\":\"karp\",\"lastName\":\"paul\",\"twitterHandle\":\"Paul_Karp\"}],\"isHosted\":false,\"pillarId\":\"pillar/news\",\"pillarName\":\"News\"},{\"id\":\"business/grogonomics/2018/aug/05/a-virus-of-odious-ignorance-has-infected-conservative-thinking-and-politics\",\"type\":\"article\",\"sectionId\":\"business\",\"sectionName\":\"Business\",\"webPublicationDate\":\"2018-08-04T20:00:49Z\",\"webTitle\":\"A virus of odious ignorance has infected conservative thinking - and politics | Greg Jericho\",\"webUrl\":\"https://www.theguardian.com/business/grogonomics/2018/aug/05/a-virus-of-odious-ignorance-has-infected-conservative-thinking-and-politics\",\"apiUrl\":\"https://content.guardianapis.com/business/grogonomics/2018/aug/05/a-virus-of-odious-ignorance-has-infected-conservative-thinking-and-politics\",\"tags\":[{\"id\":\"profile/greg-jericho\",\"type\":\"contributor\",\"webTitle\":\"Greg Jericho\",\"webUrl\":\"https://www.theguardian.com/profile/greg-jericho\",\"apiUrl\":\"https://content.guardianapis.com/profile/greg-jericho\",\"references\":[],\"bio\":\"<p>Greg writes on economics for Guardian Australia and is the author of the celebrated Grogs Gamut blog. He is a former public servant and author of the book The Rise of the Fifth Estate: Social Media and Blogging in Australian Politics</p>\",\"bylineImageUrl\":\"https://static.guim.co.uk/sys-images/Guardian/Pix/contributor/2014/7/21/1405973562987/Greg-Jericho.jpg\",\"bylineLargeImageUrl\":\"https://uploads.guim.co.uk/2017/10/06/Greg-Jericho,-R.png\",\"firstName\":\"jericho\",\"lastName\":\"greg\",\"twitterHandle\":\"GrogsGamut\"}],\"isHosted\":false,\"pillarId\":\"pillar/news\",\"pillarName\":\"News\"},{\"id\":\"commentisfree/2018/aug/03/corbynistas-politics-labour-leader\",\"type\":\"article\",\"sectionId\":\"commentisfree\",\"sectionName\":\"Opinion\",\"webPublicationDate\":\"2018-08-03T16:03:34Z\",\"webTitle\":\"A Waco week, as Corbynistas do politics in the paranoid style | Marina Hyde\",\"webUrl\":\"https://www.theguardian.com/commentisfree/2018/aug/03/corbynistas-politics-labour-leader\",\"apiUrl\":\"https://content.guardianapis.com/commentisfree/2018/aug/03/corbynistas-politics-labour-leader\",\"tags\":[{\"id\":\"profile/marinahyde\",\"type\":\"contributor\",\"webTitle\":\"Marina Hyde\",\"webUrl\":\"https://www.theguardian.com/profile/marinahyde\",\"apiUrl\":\"https://content.guardianapis.com/profile/marinahyde\",\"references\":[],\"bio\":\"<p>Marina Hyde is a Guardian columnist. Twitter <a href=\\\"https://twitter.com/MarinaHyde\\\">@MarinaHyde</a></p>\",\"bylineImageUrl\":\"https://uploads.guim.co.uk/2018/01/10/Marina-Hyde.jpg\",\"bylineLargeImageUrl\":\"https://uploads.guim.co.uk/2018/01/10/Marina_Hyde,_L.png\",\"firstName\":\"Marina\",\"lastName\":\"Hyde\",\"twitterHandle\":\"MarinaHyde\"}],\"isHosted\":false,\"pillarId\":\"pillar/opinion\",\"pillarName\":\"Opinion\"},{\"id\":\"politics/blog/live/2018/aug/03/politics-live-readers-edition-friday-3-august\",\"type\":\"liveblog\",\"sectionId\":\"politics\",\"sectionName\":\"Politics\",\"webPublicationDate\":\"2018-08-03T07:13:24Z\",\"webTitle\":\"Politics Live - readers' edition: Friday 3 August\",\"webUrl\":\"https://www.theguardian.com/politics/blog/live/2018/aug/03/politics-live-readers-edition-friday-3-august\",\"apiUrl\":\"https://content.guardianapis.com/politics/blog/live/2018/aug/03/politics-live-readers-edition-friday-3-august\",\"tags\":[{\"id\":\"profile/guardian-readers\",\"type\":\"contributor\",\"webTitle\":\"Guardian readers\",\"webUrl\":\"https://www.theguardian.com/profile/guardian-readers\",\"apiUrl\":\"https://content.guardianapis.com/profile/guardian-readers\",\"references\":[],\"bio\":\"<p>The Guardian readers contributor tag is applied to any content that is solely or partly created by you, our readers. It includes projects, galleries and stories involving data, photography, perspectives and more. Thank you for your ongoing inspiration and participation</p>\",\"firstName\":\"readers\",\"lastName\":\"guardian\"}],\"isHosted\":false,\"pillarId\":\"pillar/news\",\"pillarName\":\"News\"},{\"id\":\"stage/2018/aug/03/us-gun-culture-and-racial-politics-come-under-fire-at-edinburgh-fringe\",\"type\":\"article\",\"sectionId\":\"stage\",\"sectionName\":\"Stage\",\"webPublicationDate\":\"2018-08-03T07:00:06Z\",\"webTitle\":\"US gun culture and racial politics come under fire at Edinburgh fringe\",\"webUrl\":\"https://www.theguardian.com/stage/2018/aug/03/us-gun-culture-and-racial-politics-come-under-fire-at-edinburgh-fringe\",\"apiUrl\":\"https://content.guardianapis.com/stage/2018/aug/03/us-gun-culture-and-racial-politics-come-under-fire-at-edinburgh-fringe\",\"tags\":[{\"id\":\"profile/catherine-love\",\"type\":\"contributor\",\"webTitle\":\"Catherine Love\",\"webUrl\":\"https://www.theguardian.com/profile/catherine-love\",\"apiUrl\":\"https://content.guardianapis.com/profile/catherine-love\",\"references\":[],\"bio\":\"<p>Catherine Love writes about theatre for the Guardian<br></p>\",\"bylineImageUrl\":\"https://uploads.guim.co.uk/2017/12/08/Catherine-Love.jpg\",\"bylineLargeImageUrl\":\"https://uploads.guim.co.uk/2017/12/08/Catherine_Love,_L.png\",\"firstName\":\"love\",\"lastName\":\"catherine\"}],\"isHosted\":false,\"pillarId\":\"pillar/arts\",\"pillarName\":\"Arts\"},{\"id\":\"commentisfree/2018/aug/02/uk-politics-rock-bottom-antisemitism-brexit\",\"type\":\"article\",\"sectionId\":\"commentisfree\",\"sectionName\":\"Opinion\",\"webPublicationDate\":\"2018-08-02T17:45:18Z\",\"webTitle\":\"Dark forces gather as UK politics heads for rock bottom | Gaby Hinsliff\",\"webUrl\":\"https://www.theguardian.com/commentisfree/2018/aug/02/uk-politics-rock-bottom-antisemitism-brexit\",\"apiUrl\":\"https://content.guardianapis.com/commentisfree/2018/aug/02/uk-politics-rock-bottom-antisemitism-brexit\",\"tags\":[{\"id\":\"profile/gabyhinsliff\",\"type\":\"contributor\",\"webTitle\":\"Gaby Hinsliff\",\"webUrl\":\"https://www.theguardian.com/profile/gabyhinsliff\",\"apiUrl\":\"https://content.guardianapis.com/profile/gabyhinsliff\",\"references\":[],\"bio\":\"<p>Gaby Hinsliff is a Guardian columnist</p>\",\"bylineImageUrl\":\"https://static.guim.co.uk/sys-images/Guardian/Pix/contributor/2014/9/12/1410533773838/Gaby-Hinsliff.jpg\",\"bylineLargeImageUrl\":\"https://uploads.guim.co.uk/2017/10/06/Gaby-Hinsliff,-L.png\",\"firstName\":\"Gaby\",\"lastName\":\"Hinsliff\"}],\"isHosted\":false,\"pillarId\":\"pillar/opinion\",\"pillarName\":\"Opinion\"},{\"id\":\"politics/blog/live/2018/aug/02/austerity-and-cuts-like-bedroom-tax-directly-led-to-brexit-academic-research-suggests-politics-live\",\"type\":\"liveblog\",\"sectionId\":\"politics\",\"sectionName\":\"Politics\",\"webPublicationDate\":\"2018-08-02T12:40:42Z\",\"webTitle\":\"Brexit is direct result of austerity and cuts like bedroom tax, research suggests - Politics live\",\"webUrl\":\"https://www.theguardian.com/politics/blog/live/2018/aug/02/austerity-and-cuts-like-bedroom-tax-directly-led-to-brexit-academic-research-suggests-politics-live\",\"apiUrl\":\"https://content.guardianapis.com/politics/blog/live/2018/aug/02/austerity-and-cuts-like-bedroom-tax-directly-led-to-brexit-academic-research-suggests-politics-live\",\"tags\":[{\"id\":\"profile/andrewsparrow\",\"type\":\"contributor\",\"webTitle\":\"Andrew Sparrow\",\"webUrl\":\"https://www.theguardian.com/profile/andrewsparrow\",\"apiUrl\":\"https://content.guardianapis.com/profile/andrewsparrow\",\"references\":[],\"bio\":\"<p>Andrew Sparrow is a political correspondent at the Guardian. He writes the Guardian's daily live blog, <a href=\\\"http://www.theguardian.com/politics/series/politics-live-with-andrew-sparrow\\\">Politics live with Andrew Sparrow</a>.</p>\",\"bylineImageUrl\":\"https://uploads.guim.co.uk/2017/10/06/Andrew-Sparrow.jpg\",\"bylineLargeImageUrl\":\"https://uploads.guim.co.uk/2017/10/06/Andrew_Sparrow,_R.png\",\"firstName\":\"sparrow\",\"lastName\":\"andrew\",\"twitterHandle\":\"AndrewSparrow\"}],\"isHosted\":false,\"pillarId\":\"pillar/news\",\"pillarName\":\"News\"},{\"id\":\"politics/blog/live/2018/aug/01/chequers-brexit-plan-would-cost-economy-equivalent-of-500-per-head-says-thinktank-politics-live\",\"type\":\"liveblog\",\"sectionId\":\"politics\",\"sectionName\":\"Politics\",\"webPublicationDate\":\"2018-08-01T15:15:43Z\",\"webTitle\":\"Brexit: 'At the moment we are heading for no deal by accident,' says Jeremy Hunt - Politics live\",\"webUrl\":\"https://www.theguardian.com/politics/blog/live/2018/aug/01/chequers-brexit-plan-would-cost-economy-equivalent-of-500-per-head-says-thinktank-politics-live\",\"apiUrl\":\"https://content.guardianapis.com/politics/blog/live/2018/aug/01/chequers-brexit-plan-would-cost-economy-equivalent-of-500-per-head-says-thinktank-politics-live\",\"tags\":[{\"id\":\"profile/andrewsparrow\",\"type\":\"contributor\",\"webTitle\":\"Andrew Sparrow\",\"webUrl\":\"https://www.theguardian.com/profile/andrewsparrow\",\"apiUrl\":\"https://content.guardianapis.com/profile/andrewsparrow\",\"references\":[],\"bio\":\"<p>Andrew Sparrow is a political correspondent at the Guardian. He writes the Guardian's daily live blog, <a href=\\\"http://www.theguardian.com/politics/series/politics-live-with-andrew-sparrow\\\">Politics live with Andrew Sparrow</a>.</p>\",\"bylineImageUrl\":\"https://uploads.guim.co.uk/2017/10/06/Andrew-Sparrow.jpg\",\"bylineLargeImageUrl\":\"https://uploads.guim.co.uk/2017/10/06/Andrew_Sparrow,_R.png\",\"firstName\":\"sparrow\",\"lastName\":\"andrew\",\"twitterHandle\":\"AndrewSparrow\"}],\"isHosted\":false,\"pillarId\":\"pillar/news\",\"pillarName\":\"News\"},{\"id\":\"australia-news/2018/aug/01/act-under-pressure-to-succumb-to-politics-of-energy-guarantee-minister-says\",\"type\":\"article\",\"sectionId\":\"australia-news\",\"sectionName\":\"Australia news\",\"webPublicationDate\":\"2018-08-01T01:55:55Z\",\"webTitle\":\"ACT under pressure to 'succumb to politics' of energy guarantee, minister says\",\"webUrl\":\"https://www.theguardian.com/australia-news/2018/aug/01/act-under-pressure-to-succumb-to-politics-of-energy-guarantee-minister-says\",\"apiUrl\":\"https://content.guardianapis.com/australia-news/2018/aug/01/act-under-pressure-to-succumb-to-politics-of-energy-guarantee-minister-says\",\"tags\":[{\"id\":\"profile/katharine-murphy\",\"type\":\"contributor\",\"webTitle\":\"Katharine Murphy\",\"webUrl\":\"https://www.theguardian.com/profile/katharine-murphy\",\"apiUrl\":\"https://content.guardianapis.com/profile/katharine-murphy\",\"references\":[],\"bio\":\"<p>Katharine Murphy is Guardian Australia's political editor. She has worked in Canberra's parliamentary gallery for 15 years. In 2008, she won the Paul Lyneham award for excellence in press gallery journalism, while in 2012 she was a Walkley award finalist in the best digital journalism category</p>\",\"bylineImageUrl\":\"https://static.guim.co.uk/sys-images/Guardian/Pix/contributor/2014/7/22/1405984188542/Katharine-Murphy.jpg\",\"bylineLargeImageUrl\":\"https://uploads.guim.co.uk/2017/10/06/Katharine-Murphy,-R.png\",\"firstName\":\"murphy\",\"lastName\":\"katharine\",\"twitterHandle\":\"murpharoo\"}],\"isHosted\":false,\"pillarId\":\"pillar/news\",\"pillarName\":\"News\"},{\"id\":\"commentisfree/2018/jul/31/zuckerberg-haters-social-media-giants\",\"type\":\"article\",\"sectionId\":\"commentisfree\",\"sectionName\":\"Opinion\",\"webPublicationDate\":\"2018-07-31T05:00:46Z\",\"webTitle\":\"Ignore Zuckerberg. With skill and imagination we can drive the haters offline | Zoe Williams\",\"webUrl\":\"https://www.theguardian.com/commentisfree/2018/jul/31/zuckerberg-haters-social-media-giants\",\"apiUrl\":\"https://content.guardianapis.com/commentisfree/2018/jul/31/zuckerberg-haters-social-media-giants\",\"tags\":[{\"id\":\"profile/zoewilliams\",\"type\":\"contributor\",\"webTitle\":\"Zoe Williams\",\"webUrl\":\"https://www.theguardian.com/profile/zoewilliams\",\"apiUrl\":\"https://content.guardianapis.com/profile/zoewilliams\",\"references\":[],\"bio\":\"<p>Zoe Williams is a Guardian columnist. Twitter <a href=\\\"https://twitter.com/zoesqwilliams?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor\\\">@zoesqwilliams</a></p>\",\"bylineImageUrl\":\"https://static.guim.co.uk/sys-images/Guardian/Pix/pictures/2014/4/17/1397749341828/ZoeWilliams.jpg\",\"bylineLargeImageUrl\":\"https://uploads.guim.co.uk/2017/10/09/Zoe-Williams,-L.png\",\"firstName\":\"Zoe\",\"lastName\":\"Williams\",\"twitterHandle\":\"zoesqwilliams\"}],\"isHosted\":false,\"pillarId\":\"pillar/opinion\",\"pillarName\":\"Opinion\"}]}}";
+        ListView articleListView = findViewById(R.id.list);
+        mEmptyTextView = findViewById(R.id.empty_text_view);
+        mLoadingSpinner = findViewById(R.id.loading_spinner);
 
-        List<Article> articles = QueryUtils.extractArticles(jsonResponse);
+        if (!isConnectedToInternet()){
+            mLoadingSpinner.setVisibility(View.GONE);
+            mEmptyTextView.setText(R.string.no_internet);
+        }
+        else {
+            mAdapter = new ArticleAdapter(this, new ArrayList<Article>());
 
-        mAdapter = new ArticleAdapter(this, articles);
+            articleListView.setEmptyView(mEmptyTextView);
+            articleListView.setAdapter(mAdapter);
 
-        ListView articleListView = (ListView) findViewById(R.id.list);
-        TextView mEmptyTextView = (TextView) findViewById(R.id.empty_text_view);
+            articleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                    Article currentEarthquake = mAdapter.getItem(position);
+                    Uri earthquakeUri = Uri.parse(currentEarthquake.getUrl());
+                    Intent websiteIntent = new Intent(Intent.ACTION_VIEW, earthquakeUri);
+                    startActivity(websiteIntent);
+                }
+            });
 
-        articleListView.setEmptyView(mEmptyTextView);
-        articleListView.setAdapter(mAdapter);
+            LoaderManager loaderManager = getLoaderManager();
+            loaderManager.initLoader(ARTICLE_LOADER_ID, null, this);
+        }
+    }
 
-        articleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Article currentEarthquake = mAdapter.getItem(position);
-                Uri earthquakeUri = Uri.parse(currentEarthquake.getUrl());
-                Intent websiteIntent = new Intent(Intent.ACTION_VIEW, earthquakeUri);
-                startActivity(websiteIntent);
-            }
-        });
+    private boolean isConnectedToInternet() {
+        ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
+
+    @Override
+    public Loader<List<Article>> onCreateLoader(int id, Bundle args) {
+        return new ArticleLoader(this, GUARDIAN_URL);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<Article>> loader, List<Article> articles) {
+        mLoadingSpinner.setVisibility(View.GONE);
+        mAdapter.clear();
+
+        if (articles != null && !articles.isEmpty()) {
+            mAdapter.addAll(articles);
+        }
+
+        mEmptyTextView.setText(R.string.no_articles_found);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Article>> loader) {
+        mAdapter.clear();
     }
 }
