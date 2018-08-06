@@ -45,12 +45,15 @@ public class QueryUtils {
 
                 String title = jsonResultObject.getString("webTitle");
                 String sectionName = jsonResultObject.getString("sectionName");
-                String date = jsonResultObject.getString("webPublicationDate");
                 String url = jsonResultObject.getString("webUrl");
+                String date = jsonResultObject.optString("webPublicationDate");
 
-                JSONArray jsonTagsArray = jsonResultObject.getJSONArray("tags");
-                JSONObject jsonFirstTagObject = jsonTagsArray.getJSONObject(0);
-                String author = jsonFirstTagObject.getString("webTitle");
+                JSONArray jsonTagsArray = jsonResultObject.optJSONArray("tags");
+                String author = "";
+                if(jsonTagsArray != null) {
+                    JSONObject jsonFirstTagObject = jsonTagsArray.getJSONObject(0);
+                    author = jsonFirstTagObject.optString("webTitle");
+                }
 
                 articles.add(new Article(title, sectionName, author, url, date));
             }
