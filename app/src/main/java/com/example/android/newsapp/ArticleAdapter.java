@@ -17,6 +17,8 @@ import java.util.List;
 
 public class ArticleAdapter extends ArrayAdapter<Article> {
 
+    public static final String DATE_AND_TIME_SEPARATOR = "T";
+
     public ArticleAdapter(@NonNull Context context, @NonNull List<Article> objects) {
         super(context, 0, objects);
     }
@@ -41,8 +43,12 @@ public class ArticleAdapter extends ArrayAdapter<Article> {
         authorTextView.setText(currentArticle.getAuthor());
 
         TextView dateTextView = (TextView) convertView.findViewById(R.id.date_text_view);
-        dateTextView.setText(currentArticle.getDate());
+        dateTextView.setText(formatDate(currentArticle.getDate()));
 
         return  convertView;
+    }
+
+    private String formatDate(String dateAndTime) {
+        return dateAndTime.split(DATE_AND_TIME_SEPARATOR)[0];
     }
 }
