@@ -61,7 +61,7 @@ public class QueryUtils {
 
 
         } catch (JSONException e) {
-            Log.e(LOG_TAG, "Problem parsing the earthquake JSON results", e);
+            Log.e(LOG_TAG, "Problem parsing the articles JSON results", e);
         }
         return articles;
     }
@@ -105,7 +105,7 @@ public class QueryUtils {
                 Log.e(LOG_TAG, "Error response code: " + urlConnection.getResponseCode());
             }
         } catch (IOException e) {
-            Log.e(LOG_TAG, "Problem retrieving the earthquake JSON results.", e);
+            Log.e(LOG_TAG, "Problem retrieving the articles JSON results.", e);
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
