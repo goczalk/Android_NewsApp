@@ -29,7 +29,7 @@ public class ArticlesActivity extends AppCompatActivity implements LoaderManager
     private ProgressBar mLoadingSpinner;
     private TextView mEmptyTextView;
     private ListView articleListView;
-    private IntentFilter filter = new IntentFilter("android.net.conn.CONNECTIVITY_ACTION");
+    private IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override

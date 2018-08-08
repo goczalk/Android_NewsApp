@@ -15,6 +15,10 @@ import java.util.List;
  * Created by klaudia on 06/08/18.
  */
 
+
+//TODO
+//    ViewHolder for optimalisation
+//            https://dzone.com/articles/optimizing-your-listview
 public class ArticleAdapter extends ArrayAdapter<Article> {
 
     public static final String DATE_AND_TIME_SEPARATOR = "T";

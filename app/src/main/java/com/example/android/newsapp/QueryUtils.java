@@ -35,6 +35,8 @@ public class QueryUtils {
 
         List<Article> articles = new ArrayList<>();
 
+        //TODO
+        //could have used constants for JSON keys
         try {
             JSONObject jsonRootObject = new JSONObject(jsonResponse);
             JSONObject jsonResponseObject = jsonRootObject.getJSONObject("response");
@@ -51,6 +53,9 @@ public class QueryUtils {
                 JSONArray jsonTagsArray = jsonResultObject.optJSONArray("tags");
                 String author = "";
                 if(jsonTagsArray != null) {
+
+                    //TODO
+//                    Each of your news stories may possibly have several authors.
                     JSONObject jsonFirstTagObject = jsonTagsArray.getJSONObject(0);
                     author = jsonFirstTagObject.optString("webTitle");
                 }

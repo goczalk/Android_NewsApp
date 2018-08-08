@@ -4,6 +4,8 @@ package com.example.android.newsapp;
  * Created by klaudia on 06/08/18.
  */
 
+
+//mTitle -> Hungarnian Notations, not recommendedn anymore
 public class Article {
     private String mTitle;
     private String mSectionName;
