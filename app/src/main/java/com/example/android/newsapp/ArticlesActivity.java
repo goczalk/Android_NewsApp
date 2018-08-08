@@ -4,10 +4,12 @@ import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,7 +24,8 @@ import java.util.List;
 
 public class ArticlesActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Article>> {
 
-    private static final String GUARDIAN_URL = "https://content.guardianapis.com/search?order-by=newest&show-tags=contributor&q=politic&api-key=b0413046-5b29-4af0-ae89-3682f833a48d";
+    private static final String GUARDIAN_URL = "https://content.guardianapis.com/search";
+
     private static final int ARTICLE_LOADER_ID = 0;
     private ArticleAdapter mAdapter;
     private ProgressBar mLoadingSpinner;
@@ -74,7 +77,24 @@ public class ArticlesActivity extends AppCompatActivity implements LoaderManager
 
     @Override
     public Loader<List<Article>> onCreateLoader(int id, Bundle args) {
-        return new ArticleLoader(this, GUARDIAN_URL);
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String keyword = sharedPrefs.getString(
+                getString(R.string.settings_search_keyword_key),
+                getString(R.string.settings_search_keyword_default));
+
+        String orderBy = sharedPrefs.getString(
+                getString(R.string.settings_order_by_key),
+                getString(R.string.settings_order_by_default));
+
+        Uri baseUri = Uri.parse(GUARDIAN_URL);
+        Uri.Builder uriBuilder = baseUri.buildUpon();
+        uriBuilder.appendQueryParameter(getString(R.string.uri_format), getString(R.string.uri_format_json));
+        uriBuilder.appendQueryParameter(getString(R.string.uri_show_tags), getString(R.string.uri_tags_contributor));
+        uriBuilder.appendQueryParameter(getString(R.string.uri_keyword), keyword);
+        uriBuilder.appendQueryParameter(getString(R.string.uri_order_by), orderBy);
+        uriBuilder.appendQueryParameter(getString(R.string.uri_api_key), getString(R.string.uri_my_key));
+
+        return new ArticleLoader(this, uriBuilder.toString());
     }
 
     @Override

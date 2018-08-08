@@ -5,4 +5,28 @@
 
     <string name="settings_menu_item">Settings</string>
     <string name="settings_title">News Settings</string>
+
+
+    <string name="settings_search_keyword_label">Keyword</string>
+    <string name="settings_search_keyword_default">politic</string>
+    <string name="settings_search_keyword_key">keyword</string>
+
+    <string name="uri_format">format</string>
+    <string name="uri_format_json">json</string>
+    <string name="uri_tags_contributor">contributor</string>
+    <string name="uri_show_tags">show-tags</string>
+    <string name="uri_my_key">b0413046-5b29-4af0-ae89-3682f833a48d</string>
+    <string name="uri_api_key">api-key</string>
+    <string name="uri_keyword">q</string>
+    <string name="uri_order_by">order-by</string>
+
+    <string name="settings_order_by_label">Order by</string>
+    <string name="settings_order_by_key">order-by</string>
+    <string name="settings_order_by_default">newest</string>
+    <string name="settings_order_by_newset_label">Newest</string>
+    <string name="settings_order_by_oldest">Oldest</string>
+    <string name="settings_order_by_relevance">Relevance</string>
+    <string name="settings_order_by_newset_value">newest</string>
+    <string name="settings_order_by_relevance_value">relevance</string>
+    <string name="settings_order_by_oldest_value">oldest</string>
 </resources>
